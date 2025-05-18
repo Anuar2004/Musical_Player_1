@@ -191,7 +191,7 @@
         </div>
       </div>
 
-      <div v-if="authUser">
+      <div class="upload-header" v-if="authUser">
           <div class="uploaded-tracks-panel" v-if="showUploadedTracks && uploadedTracks.length > 0">
             <div class="uploaded-tracks-header">
               <h4>Uploaded tracks</h4>
@@ -212,7 +212,7 @@
               {{ isSyncing ? 'Syncing...' : 'Sync' }}
             </button>
           </div>
-          <button class="folder" @click="showUploadForm = !showUploadForm">
+          <button @click="showUploadForm = !showUploadForm">
             {{ showUploadForm ? 'Cancel' : 'Upload track' }}
           </button>
 
@@ -669,98 +669,100 @@ export default {
     },
 
     async uploadTrack() {
-      if (this.selectedFiles.length === 0) {
-        alert('Please select at least one file');
-        return;
-      }
+  if (this.selectedFiles.length === 0) {
+    alert('Please select at least one file');
+    return;
+  }
 
-      this.isUploading = true;
-      this.uploadProgress = 0;
-      const uploadedFiles = [];
-      const failedFiles = [];
+  this.isUploading = true;
+  this.uploadProgress = 0;
+  const uploadedFiles = [];
+  const failedFiles = [];
+
+  try {
+    for (let i = 0; i < this.selectedFiles.length; i++) {
+      const file = this.selectedFiles[i];
 
       try {
-        for (let i = 0; i < this.selectedFiles.length; i++) {
-          const file = this.selectedFiles[i];
-          
-          try {
-            const sanitizedFilename = sanitizeFilename(file.name);
-            const filePath = `${Date.now()}_${i}_${sanitizedFilename}`;
-            
-            const { error: uploadError } = await supabase
-              .storage
-              .from('tracks')
-              .upload(filePath, file, {
-                onUploadProgress: (progress) => {
-                  const currentFileProgress = progress.loaded / progress.total;
-                  const overallProgress = 
-                    (i + currentFileProgress) / this.selectedFiles.length * 100;
-                  this.uploadProgress = Math.round(overallProgress);
-                }
-              });
+        console.log("📁 Uploading file:", file.name);
 
-            if (uploadError) {
-              throw uploadError;
+        const sanitizedFilename = sanitizeFilename(file.name);
+        const filePath = `${Date.now()}_${i}_${sanitizedFilename}`;
+
+        const { error: uploadError } = await supabase
+          .storage
+          .from('tracks')
+          .upload(filePath, file, {
+            onUploadProgress: (progress) => {
+              const currentFileProgress = progress.loaded / progress.total;
+              const overallProgress =
+                (i + currentFileProgress) / this.selectedFiles.length * 100;
+              this.uploadProgress = Math.round(overallProgress);
             }
+          });
 
-            const { data: { publicUrl } } = supabase
-              .storage
-              .from('tracks')
-              .getPublicUrl(filePath);
-
-            uploadedFiles.push({
-              name: file.name,
-              path: filePath,
-              url: publicUrl,
-              size: file.size,
-              uploadedAt: new Date()
-            });
-
-            this.uploadedTracks = [...uploadedFiles];
-            
-          } catch (error) {
-            console.error(`"File upload error ${file.name}:`, error);
-            failedFiles.push({
-              name: file.name,
-              error: error.message
-            });
-            continue
-          }
+        if (uploadError) {
+          console.error(`❌ Error uploading ${file.name}:`, uploadError.message);
+          throw uploadError;
         }
 
-        this.showUploadedTracks = true;
-        
-        let resultMessage = `Successfully uploaded ${uploadedFiles.length} from ${this.selectedFiles.length}  files.`;
-        if (failedFiles.length > 0) {
-          resultMessage += ` Failed to upload ${failedFiles.length} files.`;
-        }
-        if (uploadedFiles.length > 0) {
-          resultMessage += "Sync tracks to add them to your library.";
-        }
-        
-        alert(resultMessage);
+        const { data: { publicUrl } } = supabase
+          .storage
+          .from('tracks')
+          .getPublicUrl(filePath);
 
-        if (failedFiles.length > 0) {
-          console.log("Failed to upload:", failedFiles);
-        }
+        console.log("✅ Uploaded:", publicUrl);
+
+        uploadedFiles.push({
+          name: file.name,
+          path: filePath,
+          url: publicUrl,
+          size: file.size,
+          uploadedAt: new Date()
+        });
+
+        this.uploadedTracks = [...uploadedFiles];
 
       } catch (error) {
-        console.error('General upload error:', error);
-        alert('General upload error:' + error.message);
-      } finally {
-        this.isUploading = false;
-        this.selectedFiles = [];
-        this.uploadProgress = 0;
-        
-        this.$nextTick(() => {
-          if (this.$el.querySelector('.uploaded-tracks-panel')) {
-            this.$el.querySelector('.uploaded-tracks-panel').scrollIntoView({
-              behavior: 'smooth'
-            });
-          }
-        });
+        console.error(`⚠️ File upload error (${file.name}):`, error.message);
+        failedFiles.push({ name: file.name, error: error.message });
+        continue;
       }
-    },  
+    }
+
+    this.showUploadedTracks = true;
+
+    let resultMessage = `✅ Uploaded ${uploadedFiles.length} of ${this.selectedFiles.length} files.`;
+    if (failedFiles.length > 0) {
+      resultMessage += ` ❌ Failed: ${failedFiles.length} files.`;
+    }
+    if (uploadedFiles.length > 0) {
+      resultMessage += " Sync them to add to your library.";
+    }
+
+    alert(resultMessage);
+
+    if (failedFiles.length > 0) {
+      console.log("📄 Failed files:", failedFiles);
+    }
+
+  } catch (error) {
+    console.error('🔥 General upload error:', error.message);
+    alert('General upload error: ' + error.message);
+  } finally {
+    this.isUploading = false;
+    this.selectedFiles = [];
+    this.uploadProgress = 0;
+
+    this.$nextTick(() => {
+      const panel = this.$el.querySelector('.uploaded-tracks-panel');
+      if (panel) {
+        panel.scrollIntoView({ behavior: 'smooth' });
+      }
+    });
+  }
+},
+  
 
     playPause() {
       const audio = this.$refs.audioElement;
@@ -1184,10 +1186,6 @@ button:disabled {
   cursor: not-allowed;
 }
 
-.folder {
-  width: 100%;
-}
-
 .progress-bar {
   width: 90%;
   margin-top: 20px;
@@ -1264,8 +1262,11 @@ input[type='range']::-webkit-slider-thumb {
   cursor: pointer;
 }
 
-.uploaded-tracks-panel {
+.upload-header {
   width: 100%;
+}
+
+.uploaded-tracks-panel {
   background: var(--block-background);
   border-radius: 10px;
   padding: 15px;
@@ -1278,8 +1279,6 @@ input[type='range']::-webkit-slider-thumb {
 
 .uploaded-tracks-header {
   display: flex;
-  flex-direction: column;
-  gap: 12px;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 8px;
@@ -1298,6 +1297,8 @@ input[type='range']::-webkit-slider-thumb {
   font-size: 16px;
   cursor: pointer;
   padding: 0;
+  margin: 0;
+  line-height: 1;
 }
 
 .uploaded-tracks-list {
@@ -1325,6 +1326,7 @@ input[type='range']::-webkit-slider-thumb {
 .uploaded-tracks-list button {
   background: #ff4444;
   color: white;
+  width: 50px;
   border: none;
   padding: 3px 6px;
   border-radius: 3px;
