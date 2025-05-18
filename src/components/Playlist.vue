@@ -10,8 +10,8 @@
         <div class="track-info">
           <span class="track-title">{{ truncateTitle(track.title) }}</span>
           <div class="track-meta">
-            <span class="track-artist">{{ track.artist || 'Неизвестный исполнитель' }}</span>
-            <span class="track-album">{{ track.album || 'Неизвестный альбом' }}</span>
+            <span class="track-artist">{{ track.artist || 'Unknown artist' }}</span>
+            <span class="track-album">{{ track.album || 'Unknown album' }}</span>
           </div>
         </div>
       </li>

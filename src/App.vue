@@ -6,9 +6,8 @@
 
 <script>
 import MusicPlayer from './components/MusicPlayer.vue'
-import Playlist from './components/Playlist.vue'
 
 export default {
-  components: { MusicPlayer, Playlist }
+  components: { MusicPlayer }
 }
 </script>

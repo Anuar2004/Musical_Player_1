@@ -916,8 +916,7 @@ export default {
   height: 100vh;
   background-color: var(--background-color);
   color: var(--text-color);
-  font-family: 'Inter', sans-serif;
-  overflow: hidden;
+  font-family: 'Inter', sans-serif; 
   box-sizing: border-box;
 }
 
@@ -948,6 +947,7 @@ export default {
     flex: none;
     height: auto;
     margin: 10px;
+    box-sizing: border-box;
   }
 
   .left-block, .right-block {

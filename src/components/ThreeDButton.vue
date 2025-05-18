@@ -12,7 +12,7 @@ export default {
     modelPath: { type: String, required: true },
     onClick: { type: Function, required: true },
     reverseAnimation: { type: Boolean, default: false },
-    rotationZ: { type: Number, default: 0 }, // в градусах
+    rotationZ: { type: Number, default: 0 },
   },
   data() {
     return {
@@ -71,7 +71,7 @@ export default {
           this.scene.add(this.model);
           this.model.scale.set(3.5, 3.5, 3.5);
           this.model.position.set(0, 0, 0);
-          this.model.rotation.z = THREE.MathUtils.degToRad(this.rotationZ); // поворот по Z
+          this.model.rotation.z = THREE.MathUtils.degToRad(this.rotationZ);
 
           if (gltf.animations && gltf.animations.length > 0) {
             this.mixer = new THREE.AnimationMixer(this.model);
