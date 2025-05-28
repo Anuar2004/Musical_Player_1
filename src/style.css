@@ -25,17 +25,6 @@ body {
 
 
 :root {
-    --background-color: #121212;
-    --block-background: #181818;
-    --text-color: #ffffff;
-    --text-secondary-color: #b3b3b3;
-    --border-color: #333;
-    --button-background: linear-gradient(250deg, #3a86ff, #ff006e, #8338ec);
-    --button-hover: linear-gradient(135deg, #3a86ff, #ff006e, #8338ec);
-    --progress-bar-background: #333;
-  }
-  
-  [data-theme="light"] {
     --background-color: #ffffff;
     --block-background: #f0f0f0;
     --text-color: #000000;
@@ -44,4 +33,15 @@ body {
     --button-background: linear-gradient(250deg, #3a86ff, #ff006e, #8338ec);
     --button-hover: linear-gradient(135deg, #3a86ff, #ff006e, #8338ec);
     --progress-bar-background: #ccc;
+  }
+  
+  [data-theme="dark"] {
+    --background-color: #121212;
+    --block-background: #181818;
+    --text-color: #ffffff;
+    --text-secondary-color: #b3b3b3;
+    --border-color: #333;
+    --button-background: linear-gradient(250deg, #3a86ff, #ff006e, #8338ec);
+    --button-hover: linear-gradient(135deg, #3a86ff, #ff006e, #8338ec);
+    --progress-bar-background: #333;
   }

@@ -1024,9 +1024,10 @@ export default {
 .upload-form {
   display: flex;
   flex-direction: column;
+  align-items: center;
+  text-align: center;
   gap: 15px;
-  padding: 15px;
-  margin: 0 0 15px 0;
+  padding: 5px;
   background: rgba(255, 255, 255, 0.05);
   border-radius: 10px;
   width: 100%;
